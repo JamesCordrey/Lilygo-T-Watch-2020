@@ -1,0 +1,91 @@
+
+# COM3505 Lab Assessment 1 #
+
+## Our Project ##
+We decided to work with the Lilygo T-Watch-2020. We wanted to try and make a few apps for it that each showcased parts of the watch's possibile functionality. The main aspects we wanted to show off were the touch screen, accelerometer, vibrator and bluetooth capabilities. The apps we decided on were:
+* A date/time display with a corresponding app to edit the time.
+* An app which allows the user to enable/disable the device's bluetooth.
+* A snake game which uses the accelerometer to dictate the snake's movement direction. The user can also connect to the watch via bluetooth and see a live feed of what is happening in the game. When the snake crashes into a wall or itself, the watch will vibrate.
+
+## File Structure ##
+* The `.pio` file is located in the `/LA2/ProjectThing` directory, which is where this project should be run. It contains the following files:
+* `ProjectThing.ino` - This file contains all of the functionality for our project.
+* `config.h` - This file contains the header files we included for our project to function. The important inclusions are:
+    * `LilyGoWatch.h` - This is part of the TTGo Watch library found on github [HERE](https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library)
+    * `BluetoothSerial.h` - This is from the BluetoothSerial library which allowed us to form a bluetooth connection with other devices.
+    * `soc/rtc.h` - This is included in the ESP32 Arduino core, and it allowed us access to low-level real-time clock functionalities.
+
+## Running the Project ##
+### Setting Things Up ###
+This section covers the steps that should be followed before uploading anything to the arduino. We will cover how to set up if you are using either Visual Studio Code (VSCode) or Arduino IDE.
+#### Visual Studio ####
+1. Ensure you have the `PlatformIO IDE` and `ESP-IDF` extensions in VSCode. If you do not, they will need to be installed.
+![VSCode extensions](Images/VSCodeExtensions.png)
+2. You now need to clone this repository to your desired location and open the `LA2` folder in VSCode. Assuming you have followed step 1, VSCode should now set up the `.pio` and `.vscode` folders.
+3. In the PlatformIO taskbar at the bottom of VSCode, make sure that the project environment is `env:TTGo_TWatch`, and the upload port is correct for you (for us it was COM8).
+![VSCode board selection](Images/VSCodeBoardSelection.png)
+4. You should now be ready to build and compile by clicking the upload button.
+
+#### Arduino IDE ####
+1. Open the boards manager in the Arduino IDE and ensure that you have `esp32` provided by Espressif, keep in mind the version must be 2.0.16 or earlier or it might encounter issues with a newer version. 
+
+2. Install the following libraries:
+    * BluetoothSerial by Henry Abrahamsen through Library Manager in your Arduino.
+    * TTGO Watch, to use the TTGO Watch library, follow these steps:
+        1. Download the ZIP file of the library from GitHub: [TTGO TWatch Library](https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library).
+        2. Open the Arduino IDE.
+        3. Go to the top menu and select **Sketch**.
+        4. Click on **Include Library**.
+        5. Select **Add .ZIP Library**.
+        6. Locate and select the downloaded ZIP file to add the library to the Arduino IDE.
+
+3. Ensure the correct board and port are selected (see images): 
+* In the board selection, choose TTGO T-Watch.
+* For the port, select the appropriate COM port corresponding to your device
+![Arduino IDE board selection](Images/ArduinoIDEBoardSelect.png)
+4. You should now be ready to build and compile by clicking the upload button.
+
+### Using the project ###
+So you have now set up, built and uploaded the project to your watch. 
+* You should be greeted with a screen that displays the current time and date.
+
+![Watch time display](Images/TimeDisplay.png)
+* If you touch anywhere on the screen, it will take you to a menu with three options. If you select the middle option, it will open the corresponding app, otherwise it will move the selected outer option into the middle so that you can now open it. 
+
+![Watch menu](Images/Menu.png)
+* Set Time - This app will display the current time with four functional buttons. 'H+' and 'H-' increase/decrease the hour accordingly and the same goes for 'M+' and 'M-' for minutes. If you click the 'back' button, you will go back to the time display you were initially greeted with.
+
+![Watch set time app](Images/SetTime.png)
+* BlueTooth - This app will display a slider to enable/disable the watch's BlueTooth functionality. If it has a red square on the left, it is disabled while a blue square on the right means it is enabled. Again, there is a 'Back' button which does the same as in the 'Set Time' app.
+
+![Watch BlueTooth app](Images/BlueTooth.png)
+* Snake - This app will display a black screen with a green snake and a red apple. You will instantly start to move forward and you can change the movement direction by tilting your watch in that direction. You will feel the watch vibrate slightly whenever the snake's direction changes and a longer vibration when the snake crashes into a wall/itself to indicate the end of the game. Once the game has ended, you will be presented with two options 'Again' and 'Back' which have self explanatory functions.
+
+![Watch snake app](Images/Snake.png)
+* Snake + BlueTooth - If you have enabled BlueTooth, you can also connect another device and use a BlueTooth serial monitor to get a textual live feed of what is going on in the game. For our demonstration we used the android app [Serial Blutooth Terminal](https://play.google.com/store/apps/details?id=de.kai_morich.serial_bluetooth_terminal&hl=en&gl=US&pli=1)
+
+![Other device BlueTooth serial monitor](Images/SerialBlueToothTerminal.png)
+
+
+## Other LA2 Requirements ##
+* The video of our project in action can be found in `Images/Demonstration.mp4` or on youtube [HERE](https://youtu.be/h4JkdcNW-T0) :
+    * The demonstration of time display and set time app occurs from the beginning up until `00:15`.
+    * The demonstration of our snake game occurs from then until `00:29`.
+    * The remainder of the video is our demonstration of our BlueTooth functionality.
+* Our project does not require hardware photos due to it being the watch itself.
+
+## Testing ##
+### User Testing ###
+We had several of our friends participate in user testing to help identify any issues that we could then solve. They are listed below:
+* Impossible apple issues - We initially had the apple being the same width/height as one segment of the snake. However, due to the use of accelerometer it can be very hard to peform two 90 degree turns in succession; there will usually be a one frame gap between them. For this reason, we made the apple have a width/height of two snake segments to make the apple easier to hit and thus make the game more enjoyable.
+* Snake Movement - If you play any snake game online, you will realise that you are unable to turn in on yourself; if you are moving right, you can't turn left. Our game allowed this which obviously led to annoying instances where you would die in a seemingly random fashion. We fixed this by adding a check for the current move direction before allowing a direction change.
+
+### Integration Testing ###
+After developing each of the apps individually, we had to test the integrated system with the menu and also the introduction of the BlueTooth functionality to the snake game. The issues we identified were:
+* Screen navigation issues - We found that when rendering the initial time display screen after the user presses a 'Back' button or 'Quit' after the snake game, it would usually flash the intended screen and then go straight to the menu. We fixed this by adding a very small delay after rendering the screen as we discovered the screen touch that triggered the render was still being registered afterwards.
+* When printing the direction change to the BlueTooth serial monitor, we found that it was constantly printing 'changes' that were not changes at all. We fixed this by using a bool that ensured changes were only printed if they were actually changes.
+
+
+
+## Self Assessment ## 
+Overall, we think that we fulfilled our intial goal of demonstrating a bulk of the watch's capabilities. We worked well as a team and managed to create a functional product. We did attempt to have a more complex implementation of the bluetooth functionality by allowing the watch to connect to a phone and be able to skip, play/pause and go back to previous songs on the device's spotify. However, after trying extensively, we were running out of time and adapted our snake game to include bluetooth. If we had more time to dedicate to work on this project, we would revisit this idea and also develop more apps to display the watch's WiFi capabilities.
